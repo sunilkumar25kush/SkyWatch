@@ -10,6 +10,8 @@ import {
   SafeAreaView,
   ActivityIndicator,
   Keyboard,
+  Platform,
+  StatusBar,
 } from 'react-native';
 import { Feather, Ionicons } from '@expo/vector-icons';
 import { useWeather } from '../../context/WeatherContext';
@@ -18,6 +20,11 @@ import { weatherApi } from '../../api/openWeatherApi';
 import { GeocodingResult, SavedLocation } from '../../types/weather';
 import { POPULAR_LOCATIONS } from '../../api/mockData';
 import { StorageService } from '../../utils/storage';
+import { Colors } from '../../theme/colors';
+import { Shapes } from '../../theme/shapes';
+import { Spacing } from '../../theme/spacing';
+import { Elevation } from '../../theme/elevation';
+
 
 interface SearchLocationModalProps {
   visible: boolean;
@@ -143,19 +150,19 @@ export const SearchLocationModal: React.FC<SearchLocationModalProps> = ({
           activeOpacity={0.7}
         >
           <View style={styles.gpsIconCircle}>
-            <Ionicons name="navigate" size={18} color="#38BDF8" />
+            <Ionicons name="navigate" size={18} color={Colors.orange600} />
           </View>
           <View style={styles.gpsTextBox}>
             <Text style={styles.gpsTitle}>Use Current Location</Text>
             <Text style={styles.gpsSubtitle}>Detect coordinates via GPS</Text>
           </View>
-          <Feather name="chevron-right" size={18} color="#64748B" />
+          <Feather name="chevron-right" size={18} color={Colors.textSecondary} />
         </TouchableOpacity>
 
         {/* Results / Suggestions */}
         {loading ? (
           <View style={styles.loaderBox}>
-            <ActivityIndicator size="small" color="#38BDF8" />
+            <ActivityIndicator size="small" color={Colors.orange600} />
             <Text style={styles.loaderText}>Searching atmospheric registry...</Text>
           </View>
         ) : query.length >= 2 ? (
@@ -174,7 +181,7 @@ export const SearchLocationModal: React.FC<SearchLocationModalProps> = ({
                   activeOpacity={0.7}
                 >
                   <View style={styles.resultLeft}>
-                    <Ionicons name="location-outline" size={20} color="#38BDF8" />
+                    <Ionicons name="location-outline" size={20} color={Colors.green600} />
                     <View style={styles.resultInfo}>
                       <Text style={styles.resultName}>{item.name}</Text>
                       <Text style={styles.resultSub}>
@@ -205,7 +212,7 @@ export const SearchLocationModal: React.FC<SearchLocationModalProps> = ({
                     <Ionicons
                       name={saved ? 'bookmark' : 'bookmark-outline'}
                       size={20}
-                      color={saved ? '#F59E0B' : '#64748B'}
+                      color={saved ? Colors.orange600 : Colors.textMuted}
                     />
                   </TouchableOpacity>
                 </TouchableOpacity>
@@ -224,13 +231,15 @@ export const SearchLocationModal: React.FC<SearchLocationModalProps> = ({
             {/* Recent Searches */}
             {recentSearches.length > 0 && (
               <View style={styles.section}>
-                <Text style={styles.sectionHeader}>RECENT SEARCHES</Text>
+                <Text style={styles.sectionHeader}>Recent searches</Text>
                 <View style={styles.pillsRow}>
                   {recentSearches.map((rec, i) => (
                     <TouchableOpacity
                       key={i}
-                      style={styles.pill}
+                      style={[styles.pill, Elevation.shadowSm]}
                       onPress={() => handleSelectRecent(rec)}
+                      activeOpacity={0.7}
+                      accessibilityRole="button"
                     >
                       <Feather name="clock" size={12} color="#94A3B8" />
                       <Text style={styles.pillText}>{rec}</Text>
@@ -242,14 +251,15 @@ export const SearchLocationModal: React.FC<SearchLocationModalProps> = ({
 
             {/* Popular Global Hubs */}
             <View style={styles.section}>
-              <Text style={styles.sectionHeader}>POPULAR HUBS</Text>
+              <Text style={styles.sectionHeader}>Popular hubs</Text>
               <View style={styles.popularGrid}>
                 {POPULAR_LOCATIONS.map((loc) => (
                   <TouchableOpacity
                     key={loc.id}
-                    style={styles.popularCard}
+                    style={[styles.popularCard, Elevation.shadowSm]}
                     onPress={() => handleSelectSaved(loc)}
                     activeOpacity={0.7}
+                    accessibilityRole="button"
                   >
                     <View style={styles.popularCardTop}>
                       <Text style={styles.popularName}>{loc.name}</Text>
@@ -269,35 +279,39 @@ export const SearchLocationModal: React.FC<SearchLocationModalProps> = ({
   );
 };
 
+const ANDROID_STATUS_BAR_HEIGHT =
+  Platform.OS === 'android' ? (StatusBar.currentHeight || 36) : 0;
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0B0F19',
+    backgroundColor: Colors.bgCream,
+    paddingTop: ANDROID_STATUS_BAR_HEIGHT,
   },
   searchHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    gap: 12,
+    paddingHorizontal: Spacing.space6,
+    paddingVertical: Spacing.space4,
+    gap: Spacing.space4,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255, 255, 255, 0.08)',
+    borderBottomColor: Colors.border,
   },
   inputWrapper: {
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(30, 41, 59, 0.7)',
-    borderRadius: 14,
-    paddingHorizontal: 14,
+    backgroundColor: Colors.surface,
+    borderRadius: Shapes.radiusSm,
+    paddingHorizontal: Spacing.space5,
     height: 46,
-    gap: 10,
+    gap: Spacing.space2,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
+    borderColor: Colors.border,
   },
   input: {
     flex: 1,
-    color: '#FFFFFF',
+    color: Colors.textPrimary,
     fontSize: 15,
     fontWeight: '500',
   },
@@ -305,27 +319,29 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
   },
   cancelText: {
-    color: '#38BDF8',
+    color: Colors.orange700,
     fontSize: 15,
     fontWeight: '600',
   },
   gpsRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 14,
-    backgroundColor: 'rgba(15, 23, 42, 0.6)',
+    paddingHorizontal: Spacing.space8,
+    paddingVertical: Spacing.space5,
+    backgroundColor: Colors.surfaceElevated,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255, 255, 255, 0.05)',
+    borderBottomColor: Colors.border,
   },
   gpsIconCircle: {
     width: 36,
     height: 36,
-    borderRadius: 18,
-    backgroundColor: 'rgba(56, 189, 248, 0.15)',
+    borderRadius: Shapes.radiusFull,
+    backgroundColor: Colors.surface,
+    borderWidth: 1,
+    borderColor: Colors.border,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 12,
+    marginRight: Spacing.space4,
   },
   gpsTextBox: {
     flex: 1,
@@ -333,38 +349,39 @@ const styles = StyleSheet.create({
   gpsTitle: {
     fontSize: 15,
     fontWeight: '700',
-    color: '#F8FAFC',
+    color: Colors.textPrimary,
   },
   gpsSubtitle: {
     fontSize: 12,
-    color: '#94A3B8',
+    color: Colors.textSecondary,
     marginTop: 2,
   },
   loaderBox: {
     paddingVertical: 40,
     alignItems: 'center',
-    gap: 12,
+    gap: Spacing.space4,
   },
   loaderText: {
     fontSize: 13,
-    color: '#94A3B8',
+    color: Colors.textSecondary,
   },
   resultsList: {
-    paddingHorizontal: 16,
-    paddingVertical: 10,
+    paddingHorizontal: Spacing.space6,
+    paddingVertical: Spacing.space2,
   },
   resultItem: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: 14,
-    paddingHorizontal: 14,
-    backgroundColor: 'rgba(26, 36, 56, 0.6)',
-    borderRadius: 14,
-    marginBottom: 8,
+    paddingVertical: Spacing.space5,
+    paddingHorizontal: Spacing.space5,
+    backgroundColor: Colors.surface,
+    borderRadius: Shapes.radiusSm,
+    marginBottom: Spacing.space1,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.05)',
+    borderColor: Colors.border,
   },
+
   resultLeft: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -377,11 +394,11 @@ const styles = StyleSheet.create({
   resultName: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#F1F5F9',
+    color: Colors.textPrimary,
   },
   resultSub: {
     fontSize: 12,
-    color: '#94A3B8',
+    color: Colors.textSecondary,
     marginTop: 2,
   },
   saveIconBtn: {
@@ -395,60 +412,59 @@ const styles = StyleSheet.create({
   emptyTitle: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#94A3B8',
+    color: Colors.textSecondary,
   },
   emptySubtitle: {
     fontSize: 13,
-    color: '#64748B',
+    color: Colors.textMuted,
   },
   suggestionsContainer: {
-    paddingHorizontal: 20,
-    paddingTop: 16,
+    paddingHorizontal: Spacing.space8,
+    paddingTop: Spacing.space6,
   },
   section: {
-    marginBottom: 24,
+    marginBottom: Spacing.space9,
   },
   sectionHeader: {
-    fontSize: 11,
-    fontWeight: '800',
-    letterSpacing: 1.5,
-    color: '#64748B',
-    marginBottom: 10,
+    fontSize: 12,
+    fontWeight: '700',
+    color: Colors.textSecondary,
+    marginBottom: Spacing.space2,
   },
   pillsRow: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 8,
+    gap: Spacing.space1,
   },
   pill: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
-    backgroundColor: 'rgba(30, 41, 59, 0.7)',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 18,
+    gap: Spacing.space1,
+    backgroundColor: Colors.surface,
+    paddingHorizontal: Spacing.space4,
+    paddingVertical: Spacing.space1,
+    borderRadius: Shapes.radiusFull,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.08)',
+    borderColor: Colors.border,
   },
   pillText: {
     fontSize: 13,
-    color: '#E2E8F0',
+    color: Colors.textPrimary,
     fontWeight: '500',
   },
   popularGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 10,
+    gap: Spacing.space2,
   },
   popularCard: {
     flex: 1,
     minWidth: '47%',
-    backgroundColor: 'rgba(26, 36, 56, 0.7)',
-    borderRadius: 14,
-    padding: 12,
+    backgroundColor: Colors.surface,
+    borderRadius: Shapes.radiusSm,
+    padding: Spacing.space4,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.06)',
+    borderColor: Colors.border,
   },
   popularCardTop: {
     flexDirection: 'row',
@@ -459,19 +475,21 @@ const styles = StyleSheet.create({
   popularName: {
     fontSize: 15,
     fontWeight: '700',
-    color: '#FFFFFF',
+    color: Colors.textPrimary,
   },
   popularCountry: {
     fontSize: 10,
     fontWeight: '700',
-    color: '#94A3B8',
-    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    color: Colors.textPrimary,
+    backgroundColor: Colors.surfaceElevated,
     paddingHorizontal: 6,
     paddingVertical: 2,
     borderRadius: 4,
+    borderWidth: 1,
+    borderColor: Colors.border,
   },
   popularCoords: {
     fontSize: 11,
-    color: '#64748B',
+    color: Colors.textSecondary,
   },
 });

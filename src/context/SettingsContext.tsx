@@ -31,10 +31,11 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({
         StorageService.getSavedLocations(),
       ]);
 
+      const activeKey = storedKey || process.env.EXPO_PUBLIC_OPENWEATHER_API_KEY?.trim() || '';
       setUnitSystemState(storedUnit);
-      setApiKeyState(storedKey);
+      setApiKeyState(activeKey);
       setSavedLocations(storedLocations);
-      weatherApi.setApiKey(storedKey);
+      weatherApi.setApiKey(activeKey);
     };
 
     loadSettings();

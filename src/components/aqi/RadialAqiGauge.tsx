@@ -1,34 +1,38 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import Svg, { Path, Circle, Defs, LinearGradient, Stop } from 'react-native-svg';
+import Svg, { Path, Circle } from 'react-native-svg';
 import { GlassCard } from '../common/GlassCard';
 import { useWeather } from '../../context/WeatherContext';
 import { getAqiDetails } from '../../utils/aqiUtils';
+import { Colors } from '../../theme/colors';
+import { Typography } from '../../theme/typography';
+import { Shapes } from '../../theme/shapes';
+import { Spacing } from '../../theme/spacing';
 import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
 
 export const RadialAqiGauge: React.FC = () => {
   const { airPollution } = useWeather();
 
-  const currentAqi = airPollution?.list?.[0]?.main?.aqi ?? 2;
-  const aqiInfo = getAqiDetails(currentAqi);
+  const currentAqiTier = airPollution?.list?.[0]?.main?.aqi ?? 2;
+  const components = airPollution?.list?.[0]?.components;
+  const aqiInfo = getAqiDetails(currentAqiTier, components);
 
-  // SVG Gauge geometry (240-degree sweep from -210° to 30°)
-  const size = 200;
+  const size = 220;
   const strokeWidth = 14;
   const radius = (size - strokeWidth) / 2;
   const center = size / 2;
 
-  // Map AQI scale 1..5 to angle fraction 0..1
-  // 1 -> 0.1, 2 -> 0.32, 3 -> 0.55, 4 -> 0.78, 5 -> 1.0
-  const fraction = Math.min(1, Math.max(0.1, (currentAqi - 1) / 4 * 0.9 + 0.1));
+  // Fraction across 0 - 300+ scale for visual needle accuracy (1.0 at 300)
+  const fraction = Math.min(1, Math.max(0.04, aqiInfo.aqiScore / 300));
 
-  // Angles in radians: start at 150 deg (5pi/6), sweep 240 deg (4pi/3) to 390 deg (13pi/6)
   const startAngle = (150 * Math.PI) / 180;
   const sweepAngle = (240 * Math.PI) / 180;
   const endAngle = startAngle + sweepAngle;
-  const activeEndAngle = startAngle + sweepAngle * fraction;
 
-  // Polar to Cartesian
+  // Calculate active arc progression
+  const currentSweep = sweepAngle * fraction;
+  const activeEndAngle = startAngle + currentSweep;
+
   const polarToCartesian = (cx: number, cy: number, r: number, angleInRad: number) => ({
     x: cx + r * Math.cos(angleInRad),
     y: cy + r * Math.sin(angleInRad),
@@ -38,45 +42,41 @@ export const RadialAqiGauge: React.FC = () => {
   const pEnd = polarToCartesian(center, center, radius, endAngle);
   const pActiveEnd = polarToCartesian(center, center, radius, activeEndAngle);
 
-  // Background track path
+  // Background track (240° sweep > 180°, so largeArcFlag is always 1)
   const bgPath = `M ${pStart.x} ${pStart.y} A ${radius} ${radius} 0 1 1 ${pEnd.x} ${pEnd.y}`;
 
-  // Active arc path
-  const largeArcFlag = fraction > 0.5 ? 1 : 0;
+  // Active colored track: largeArcFlag must be 1 ONLY when currentSweep > Math.PI (180°)
+  const largeArcFlag = currentSweep > Math.PI ? 1 : 0;
   const activePath = `M ${pStart.x} ${pStart.y} A ${radius} ${radius} 0 ${largeArcFlag} 1 ${pActiveEnd.x} ${pActiveEnd.y}`;
 
   return (
     <GlassCard variant="elevated" style={styles.card}>
+      {/* Header Row */}
       <View style={styles.headerRow}>
         <View style={styles.headerLeft}>
-          <Feather name="wind" size={16} color="#38BDF8" />
-          <Text style={styles.headerTitle}>AIR QUALITY INTELLIGENCE</Text>
+          <Feather name="wind" size={16} color={Colors.orange600} />
+          <Text style={styles.headerTitle}>Air quality intelligence</Text>
         </View>
-        <View style={[styles.statusBadge, { borderColor: aqiInfo.color }]}>
+        <View
+          style={[
+            styles.statusBadge,
+            { borderColor: `${aqiInfo.color}66`, backgroundColor: `${aqiInfo.color}15` },
+          ]}
+        >
           <Text style={[styles.statusBadgeText, { color: aqiInfo.color }]}>
-            {aqiInfo.category.toUpperCase()}
+            {aqiInfo.category}
           </Text>
         </View>
       </View>
 
       {/* Radial Gauge SVG */}
       <View style={styles.gaugeContainer}>
-        <Svg width={size} height={size - 25} viewBox={`0 0 ${size} ${size}`}>
-          <Defs>
-            <LinearGradient id="gaugeGradient" x1="0" y1="0" x2="1" y2="1">
-              <Stop offset="0" stopColor="#10B981" />
-              <Stop offset="0.3" stopColor="#84CC16" />
-              <Stop offset="0.6" stopColor="#F59E0B" />
-              <Stop offset="0.8" stopColor="#F97316" />
-              <Stop offset="1" stopColor="#EF4444" />
-            </LinearGradient>
-          </Defs>
-
+        <Svg width={size} height={180} viewBox={`0 0 ${size} ${size}`}>
           {/* Background Track */}
           <Path
             d={bgPath}
             fill="none"
-            stroke="rgba(255, 255, 255, 0.08)"
+            stroke="rgba(28, 28, 28, 0.09)"
             strokeWidth={strokeWidth}
             strokeLinecap="round"
           />
@@ -90,34 +90,47 @@ export const RadialAqiGauge: React.FC = () => {
             strokeLinecap="round"
           />
 
-          {/* Active Needle Point */}
+          {/* Active Needle Point: Outer Ring */}
           <Circle
             cx={pActiveEnd.x}
             cy={pActiveEnd.y}
-            r={8}
+            r={9}
             fill="#FFFFFF"
             stroke={aqiInfo.color}
-            strokeWidth={3}
+            strokeWidth={3.5}
+          />
+
+          {/* Active Needle Point: Inner Pip */}
+          <Circle
+            cx={pActiveEnd.x}
+            cy={pActiveEnd.y}
+            r={3}
+            fill={aqiInfo.color}
           />
         </Svg>
 
         {/* Center Readout inside the radial arc */}
         <View style={styles.centerReadout}>
-          <Text style={styles.aqiScore}>{aqiInfo.approxUsAqi}</Text>
-          <Text style={styles.aqiUnit}>AQI INDEX</Text>
+          <Text style={styles.aqiScore}>{aqiInfo.aqiScore}</Text>
+          <Text style={styles.aqiUnit}>AQI index</Text>
           <Text style={[styles.aqiCategoryLabel, { color: aqiInfo.color }]}>
-            {aqiInfo.category.toUpperCase()}
+            {aqiInfo.category}
+          </Text>
+          <Text style={styles.dominantText}>
+            Main: {aqiInfo.dominantPollutant} • Tier {aqiInfo.index}/5
           </Text>
         </View>
       </View>
 
-      {/* Human-readable Health Recommendation */}
-      <View style={styles.recommendationBox}>
-        <MaterialCommunityIcons
-          name="shield-check-outline"
-          size={18}
-          color={aqiInfo.color}
-        />
+      {/* Health Recommendation Box */}
+      <View style={[styles.recommendationBox, { borderLeftColor: aqiInfo.color }]}>
+        <View style={[styles.shieldCircle, { backgroundColor: `${aqiInfo.color}18` }]}>
+          <MaterialCommunityIcons
+            name="shield-alert-outline"
+            size={20}
+            color={aqiInfo.color}
+          />
+        </View>
         <View style={styles.recommendationTextCol}>
           <Text style={styles.recDescription}>{aqiInfo.description}</Text>
           <Text style={styles.recAdvice}>{aqiInfo.recommendation}</Text>
@@ -129,91 +142,106 @@ export const RadialAqiGauge: React.FC = () => {
 
 const styles = StyleSheet.create({
   card: {
-    marginHorizontal: 20,
-    marginBottom: 20,
+    marginHorizontal: Spacing.space8,
+    marginBottom: Spacing.space8,
   },
   headerRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 8,
+    marginBottom: Spacing.space2,
   },
   headerLeft: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
+    gap: Spacing.space1,
   },
   headerTitle: {
-    fontSize: 12,
-    fontWeight: '800',
-    letterSpacing: 1.5,
-    color: '#94A3B8',
+    ...Typography.textXsBold,
+    letterSpacing: 1.2,
+    color: Colors.textSecondary,
   },
   statusBadge: {
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 8,
+    paddingHorizontal: Spacing.space4,
+    paddingVertical: 4,
+    borderRadius: Shapes.radiusFull,
     borderWidth: 1,
-    backgroundColor: 'rgba(255, 255, 255, 0.04)',
   },
   statusBadgeText: {
-    fontSize: 11,
-    fontWeight: '800',
+    ...Typography.textXsBold,
     letterSpacing: 0.5,
   },
+
   gaugeContainer: {
     alignItems: 'center',
     justifyContent: 'center',
     position: 'relative',
-    marginVertical: 4,
+    marginVertical: Spacing.space2,
+    height: 180,
   },
   centerReadout: {
     position: 'absolute',
     alignItems: 'center',
     justifyContent: 'center',
-    top: 55,
+    top: 36,
   },
   aqiScore: {
-    fontSize: 44,
+    fontSize: 50,
+    lineHeight: 52,
     fontWeight: '800',
-    color: '#FFFFFF',
-    letterSpacing: -1,
+    color: Colors.textPrimary,
+    letterSpacing: -1.5,
   },
   aqiUnit: {
-    fontSize: 10,
+    fontSize: 12,
     fontWeight: '700',
-    color: '#64748B',
+    color: Colors.textSecondary,
     letterSpacing: 1.5,
+    marginTop: 2,
   },
   aqiCategoryLabel: {
-    fontSize: 13,
-    fontWeight: '800',
+    fontSize: 15,
+    fontWeight: '700',
     marginTop: 2,
-    letterSpacing: 1,
+    letterSpacing: 0.5,
   },
+  dominantText: {
+    fontSize: 12,
+    fontWeight: '500',
+    color: Colors.textSecondary,
+    marginTop: 3,
+  },
+
   recommendationBox: {
     flexDirection: 'row',
-    gap: 10,
-    backgroundColor: 'rgba(255, 255, 255, 0.03)',
-    borderRadius: 12,
-    padding: 12,
+    alignItems: 'flex-start',
+    gap: Spacing.space4,
+    backgroundColor: Colors.surfaceElevated,
+    borderRadius: Shapes.radiusSm,
+    padding: Spacing.space4,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.05)',
+    borderColor: Colors.border,
+    borderLeftWidth: 4,
+  },
+  shieldCircle: {
+    width: 36,
+    height: 36,
+    borderRadius: Shapes.radiusFull,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   recommendationTextCol: {
     flex: 1,
-    gap: 3,
+    gap: 4,
   },
   recDescription: {
-    fontSize: 12,
-    color: '#CBD5E1',
-    fontWeight: '600',
-    lineHeight: 16,
+    ...Typography.textXsBold,
+    color: Colors.textPrimary,
+    lineHeight: 18,
   },
   recAdvice: {
-    fontSize: 11,
-    color: '#94A3B8',
-    fontWeight: '500',
-    lineHeight: 15,
+    ...Typography.textXs,
+    color: Colors.textSecondary,
+    lineHeight: 16,
   },
 });

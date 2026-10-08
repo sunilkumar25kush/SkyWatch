@@ -5,6 +5,10 @@ import { WeatherIcon } from '../../utils/weatherIcons';
 import { formatTemp, formatHourlyTime } from '../../utils/formatters';
 import { useWeather } from '../../context/WeatherContext';
 import { useSettings } from '../../context/SettingsContext';
+import { Colors } from '../../theme/colors';
+import { Typography } from '../../theme/typography';
+import { Shapes } from '../../theme/shapes';
+import { Spacing } from '../../theme/spacing';
 import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
 
 export const HourlyForecastList: React.FC = () => {
@@ -13,7 +17,6 @@ export const HourlyForecastList: React.FC = () => {
 
   if (!forecast || !forecast.list || forecast.list.length === 0) return null;
 
-  // Take the first 12 forecast intervals (~36 hours)
   const items = forecast.list.slice(0, 12);
   const tz = forecast.city.timezone;
 
@@ -40,10 +43,9 @@ export const HourlyForecastList: React.FC = () => {
 
         <Text style={styles.tempText}>{tempLabel}</Text>
 
-        {/* Rain probability pill */}
         {popPercent > 10 ? (
           <View style={styles.popBadge}>
-            <MaterialCommunityIcons name="water" size={10} color="#38BDF8" />
+            <MaterialCommunityIcons name="water" size={10} color={Colors.green700} />
             <Text style={styles.popText}>{popPercent}%</Text>
           </View>
         ) : (
@@ -56,8 +58,8 @@ export const HourlyForecastList: React.FC = () => {
   return (
     <View style={styles.container}>
       <View style={styles.sectionHeader}>
-        <Feather name="clock" size={15} color="#38BDF8" />
-        <Text style={styles.sectionTitle}>HOURLY ATMOSPHERIC TIMELINE</Text>
+        <Feather name="clock" size={15} color={Colors.orange600} />
+        <Text style={styles.sectionTitle}>Hourly atmospheric timeline</Text>
       </View>
 
       <FlatList
@@ -74,46 +76,44 @@ export const HourlyForecastList: React.FC = () => {
 
 const styles = StyleSheet.create({
   container: {
-    marginBottom: 20,
+    marginBottom: Spacing.space8,
   },
   sectionHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 7,
-    marginHorizontal: 20,
-    marginBottom: 10,
+    marginHorizontal: Spacing.space8,
+    marginBottom: Spacing.space2,
   },
   sectionTitle: {
-    fontSize: 12,
-    fontWeight: '800',
+    ...Typography.textXsBold,
     letterSpacing: 1.5,
-    color: '#94A3B8',
+    color: Colors.textSecondary,
   },
   listContent: {
-    paddingHorizontal: 20,
-    gap: 10,
+    paddingHorizontal: Spacing.space8,
+    gap: Spacing.space2,
   },
   cardItem: {
     width: 76,
-    paddingVertical: 14,
+    paddingVertical: Spacing.space5,
     alignItems: 'center',
-    borderRadius: 16,
-    backgroundColor: 'rgba(26, 36, 56, 0.7)',
+    borderRadius: Shapes.radiusSm,
+    backgroundColor: Colors.surface,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.06)',
+    borderColor: Colors.border,
   },
   nowCardItem: {
-    backgroundColor: 'rgba(37, 99, 235, 0.25)',
-    borderColor: 'rgba(56, 189, 248, 0.4)',
+    backgroundColor: Colors.surfaceElevated,
+    borderColor: Colors.orange500,
   },
   timeText: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#94A3B8',
-    marginBottom: 8,
+    ...Typography.textXsMedium,
+    color: Colors.textSecondary,
+    marginBottom: Spacing.space1,
   },
   nowText: {
-    color: '#38BDF8',
+    color: Colors.orange700,
     fontWeight: '700',
   },
   iconContainer: {
@@ -122,28 +122,30 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   tempText: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#FFFFFF',
+    ...Typography.textBaseBold,
+    color: Colors.textPrimary,
     marginTop: 6,
   },
   popBadge: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 2,
-    backgroundColor: 'rgba(56, 189, 248, 0.15)',
+    backgroundColor: Colors.surfaceElevated,
     paddingHorizontal: 6,
     paddingVertical: 2,
-    borderRadius: 8,
+    borderRadius: Shapes.radiusSm,
+    borderWidth: 1,
+    borderColor: Colors.border,
     marginTop: 6,
   },
   popText: {
-    fontSize: 10,
-    fontWeight: '700',
-    color: '#38BDF8',
+    ...Typography.textXsBold,
+    color: Colors.green700,
   },
   popSpacer: {
     height: 18,
     marginTop: 6,
   },
 });
+
+

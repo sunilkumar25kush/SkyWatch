@@ -5,6 +5,9 @@ import { WeatherIcon } from '../../utils/weatherIcons';
 import { formatDayName, formatTemp } from '../../utils/formatters';
 import { useWeather } from '../../context/WeatherContext';
 import { useSettings } from '../../context/SettingsContext';
+import { Colors } from '../../theme/colors';
+import { Typography } from '../../theme/typography';
+import { Spacing } from '../../theme/spacing';
 import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
 import { ForecastItem } from '../../types/weather';
 
@@ -26,7 +29,6 @@ export const DailyForecastCard: React.FC = () => {
 
   const tz = forecast.city.timezone;
 
-  // Group forecast items by calendar day
   const groupedByDay: { [key: string]: ForecastItem[] } = {};
   forecast.list.forEach((item) => {
     const localDate = new Date((item.dt + tz) * 1000);
@@ -62,7 +64,6 @@ export const DailyForecastCard: React.FC = () => {
     };
   });
 
-  // Calculate overall min/max across all 5 days for the relative bar
   const globalMin = Math.min(...days.map((d) => d.minTemp));
   const globalMax = Math.max(...days.map((d) => d.maxTemp));
   const globalSpan = Math.max(1, globalMax - globalMin);
@@ -71,14 +72,13 @@ export const DailyForecastCard: React.FC = () => {
     <GlassCard style={styles.card}>
       <View style={styles.headerRow}>
         <View style={styles.headerLeft}>
-          <Feather name="calendar" size={16} color="#38BDF8" />
-          <Text style={styles.headerTitle}>5-DAY OUTLOOK & TEMPERATURE RANGE</Text>
+          <Feather name="calendar" size={16} color={Colors.orange600} />
+          <Text style={styles.headerTitle}>5-day outlook & temperature range</Text>
         </View>
       </View>
 
       <View style={styles.listContainer}>
         {days.map((day, idx) => {
-          // Relative position of day's min/max within the global span (0% to 100%)
           const leftPercent = Math.max(
             0,
             Math.min(100, ((day.minTemp - globalMin) / globalSpan) * 100)
@@ -111,7 +111,7 @@ export const DailyForecastCard: React.FC = () => {
                 />
                 {day.maxPop > 15 ? (
                   <View style={styles.rainBadge}>
-                    <MaterialCommunityIcons name="water" size={10} color="#38BDF8" />
+                    <MaterialCommunityIcons name="water" size={10} color={Colors.green700} />
                     <Text style={styles.rainText}>{day.maxPop}%</Text>
                   </View>
                 ) : null}
@@ -149,13 +149,13 @@ export const DailyForecastCard: React.FC = () => {
 
 const styles = StyleSheet.create({
   card: {
-    marginHorizontal: 20,
-    marginBottom: 20,
+    marginHorizontal: Spacing.space8,
+    marginBottom: Spacing.space8,
   },
   headerRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 14,
+    marginBottom: Spacing.space5,
   },
   headerLeft: {
     flexDirection: 'row',
@@ -163,57 +163,56 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   headerTitle: {
-    fontSize: 12,
-    fontWeight: '800',
+    ...Typography.textXsBold,
     letterSpacing: 1.5,
-    color: '#94A3B8',
+    color: Colors.textSecondary,
   },
   listContainer: {
-    gap: 12,
+    gap: Spacing.space4,
   },
+
   dayRow: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingVertical: 4,
   },
   dayNameCol: {
-    width: 80,
+    width: 72,
   },
   dayNameText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#CBD5E1',
+    ...Typography.textSmSemiBold,
+    color: Colors.textPrimary,
   },
   todayNameText: {
-    color: '#38BDF8',
+    color: Colors.orange700,
     fontWeight: '700',
   },
   iconCol: {
-    width: 50,
+    width: 64,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
+    gap: 3,
   },
   rainBadge: {
     flexDirection: 'row',
     alignItems: 'center',
+    gap: 1,
   },
   rainText: {
-    fontSize: 9,
-    color: '#38BDF8',
+    fontSize: 11,
     fontWeight: '700',
+    color: Colors.green700,
   },
   tempMinText: {
-    width: 38,
-    fontSize: 13,
-    fontWeight: '600',
-    color: '#64748B',
+    width: 36,
+    ...Typography.textSmMedium,
+    color: Colors.textSecondary,
     textAlign: 'right',
   },
   barTrack: {
     flex: 1,
     height: 6,
-    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    backgroundColor: 'rgba(28, 28, 28, 0.08)',
     borderRadius: 3,
     marginHorizontal: 10,
     overflow: 'hidden',
@@ -222,13 +221,13 @@ const styles = StyleSheet.create({
   barFill: {
     height: '100%',
     borderRadius: 3,
-    backgroundColor: '#38BDF8',
+    backgroundColor: Colors.orange500,
   },
   tempMaxText: {
     width: 38,
-    fontSize: 13,
-    fontWeight: '700',
-    color: '#F8FAFC',
+    ...Typography.textSmBold,
+    color: Colors.textPrimary,
     textAlign: 'left',
   },
 });
+

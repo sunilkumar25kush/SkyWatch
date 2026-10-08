@@ -5,10 +5,13 @@ import { GlassCard } from '../common/GlassCard';
 import { useWeather } from '../../context/WeatherContext';
 import { useSettings } from '../../context/SettingsContext';
 import { formatHourlyTime } from '../../utils/formatters';
+import { Colors } from '../../theme/colors';
+import { Typography } from '../../theme/typography';
+import { Spacing } from '../../theme/spacing';
 import { Feather } from '@expo/vector-icons';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
-const CHART_WIDTH = SCREEN_WIDTH - 76; // Card margins + padding
+const CHART_WIDTH = SCREEN_WIDTH - 76;
 const CHART_HEIGHT = 120;
 
 export const TempTrendChart: React.FC = () => {
@@ -17,7 +20,6 @@ export const TempTrendChart: React.FC = () => {
 
   if (!forecast || !forecast.list || forecast.list.length === 0) return null;
 
-  // Use 8 time intervals (~24 hours) for the graph
   const dataPoints = forecast.list.slice(0, 8);
   const tz = forecast.city.timezone;
 
@@ -26,7 +28,6 @@ export const TempTrendChart: React.FC = () => {
   const maxTemp = Math.max(...temps);
   const tempRange = Math.max(1, maxTemp - minTemp);
 
-  // Compute (x, y) coordinates for each point
   const paddingX = 24;
   const paddingY = 24;
   const graphWidth = CHART_WIDTH - paddingX * 2;
@@ -47,7 +48,6 @@ export const TempTrendChart: React.FC = () => {
     };
   });
 
-  // Construct smooth bezier curve path
   let pathD = `M ${points[0].x} ${points[0].y}`;
   for (let i = 0; i < points.length - 1; i++) {
     const p0 = points[i];
@@ -56,15 +56,14 @@ export const TempTrendChart: React.FC = () => {
     pathD += ` C ${mx} ${p0.y}, ${mx} ${p1.y}, ${p1.x} ${p1.y}`;
   }
 
-  // Construct area fill path closing at the bottom
   const fillD = `${pathD} L ${points[points.length - 1].x} ${CHART_HEIGHT} L ${points[0].x} ${CHART_HEIGHT} Z`;
 
   return (
     <GlassCard style={styles.card}>
       <View style={styles.headerRow}>
         <View style={styles.headerLeft}>
-          <Feather name="trending-up" size={16} color="#38BDF8" />
-          <Text style={styles.headerTitle}>24-HOUR THERMAL CURVE</Text>
+          <Feather name="trending-up" size={16} color={Colors.orange600} />
+          <Text style={styles.headerTitle}>24-hour thermal curve</Text>
         </View>
         <Text style={styles.unitBadge}>
           {unitSystem === 'metric' ? '°C' : '°F'} Range: {Math.round(minTemp)}° - {Math.round(maxTemp)}°
@@ -75,8 +74,8 @@ export const TempTrendChart: React.FC = () => {
         <Svg width={CHART_WIDTH} height={CHART_HEIGHT}>
           <Defs>
             <LinearGradient id="tempGradient" x1="0" y1="0" x2="0" y2="1">
-              <Stop offset="0" stopColor="#38BDF8" stopOpacity="0.4" />
-              <Stop offset="1" stopColor="#38BDF8" stopOpacity="0.0" />
+              <Stop offset="0" stopColor={Colors.orange500} stopOpacity="0.45" />
+              <Stop offset="1" stopColor={Colors.orange500} stopOpacity="0.0" />
             </LinearGradient>
           </Defs>
 
@@ -87,7 +86,7 @@ export const TempTrendChart: React.FC = () => {
           <Path
             d={pathD}
             fill="none"
-            stroke="#38BDF8"
+            stroke={Colors.orange600}
             strokeWidth="3"
             strokeLinecap="round"
           />
@@ -99,8 +98,8 @@ export const TempTrendChart: React.FC = () => {
                 cx={p.x}
                 cy={p.y}
                 r="4"
-                fill="#0B0F19"
-                stroke="#38BDF8"
+                fill={Colors.surface}
+                stroke={Colors.orange600}
                 strokeWidth="2"
               />
               <SvgText
@@ -108,7 +107,7 @@ export const TempTrendChart: React.FC = () => {
                 y={p.y - 10}
                 fontSize="11"
                 fontWeight="700"
-                fill="#FFFFFF"
+                fill={Colors.textPrimary}
                 textAnchor="middle"
               >
                 {`${p.temp}°`}
@@ -132,30 +131,29 @@ export const TempTrendChart: React.FC = () => {
 
 const styles = StyleSheet.create({
   card: {
-    marginHorizontal: 20,
-    marginBottom: 20,
+    marginHorizontal: Spacing.space8,
+    marginBottom: Spacing.space8,
   },
   headerRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 12,
+    marginBottom: Spacing.space4,
   },
+
   headerLeft: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
   },
   headerTitle: {
-    fontSize: 12,
-    fontWeight: '800',
+    ...Typography.textXsBold,
     letterSpacing: 1.5,
-    color: '#94A3B8',
+    color: Colors.textSecondary,
   },
   unitBadge: {
-    fontSize: 11,
-    color: '#64748B',
-    fontWeight: '600',
+    ...Typography.textXsMedium,
+    color: Colors.textSecondary,
   },
   chartWrapper: {
     alignItems: 'center',
@@ -167,13 +165,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     marginTop: 8,
     borderTopWidth: 1,
-    borderTopColor: 'rgba(255, 255, 255, 0.05)',
+    borderTopColor: Colors.border,
     paddingTop: 8,
   },
   xAxisLabel: {
-    fontSize: 10,
-    color: '#64748B',
-    fontWeight: '600',
+    ...Typography.textXs,
+    color: Colors.textSecondary,
     textAlign: 'center',
   },
 });
+

@@ -2,6 +2,12 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Ionicons, Feather, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useWeather } from '../../context/WeatherContext';
+import { Colors } from '../../theme/colors';
+import { Typography } from '../../theme/typography';
+import { Shapes } from '../../theme/shapes';
+import { Spacing } from '../../theme/spacing';
+
+import { Elevation } from '../../theme/elevation';
 
 interface HeaderProps {
   onOpenSearch: () => void;
@@ -20,54 +26,59 @@ export const Header: React.FC<HeaderProps> = ({
     <View style={styles.container}>
       <View style={styles.topRow}>
         <View style={styles.brandRow}>
-          <MaterialCommunityIcons name="weather-partly-cloudy" size={24} color="#38BDF8" />
-          <Text style={styles.brandTitle}>SKYWATCH</Text>
+          <MaterialCommunityIcons name="weather-partly-cloudy" size={24} color={Colors.orange600} />
+          <Text style={styles.brandTitle}>SkyWatch</Text>
           <View style={styles.proBadge}>
-            <Text style={styles.proText}>AI INTEL</Text>
+            <Text style={styles.proText}>AI Intel</Text>
           </View>
         </View>
 
         <View style={styles.actionIconsRow}>
           <TouchableOpacity
-            style={styles.iconButton}
+            style={[styles.iconButton, Elevation.shadowSm]}
             onPress={onOpenMap}
             activeOpacity={0.7}
+            accessibilityRole="button"
             accessibilityLabel="Open Weather Radar"
           >
-            <Feather name="map" size={19} color="#38BDF8" />
+            <Feather name="map" size={19} color={Colors.orange600} />
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={styles.iconButton}
+            style={[styles.iconButton, Elevation.shadowSm]}
             onPress={onOpenSearch}
             activeOpacity={0.7}
+            accessibilityRole="button"
             accessibilityLabel="Search Cities"
           >
-            <Feather name="search" size={19} color="#E2E8F0" />
+            <Feather name="search" size={19} color={Colors.textPrimary} />
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={styles.iconButton}
+            style={[styles.iconButton, Elevation.shadowSm]}
             onPress={onOpenSettings}
             activeOpacity={0.7}
+            accessibilityRole="button"
             accessibilityLabel="Open Settings"
           >
-            <Feather name="sliders" size={19} color="#E2E8F0" />
+            <Feather name="sliders" size={19} color={Colors.textPrimary} />
           </TouchableOpacity>
         </View>
       </View>
 
-      {/* Location Selector Bar */}
-      <TouchableOpacity
-        style={styles.locationSelector}
-        onPress={onOpenSearch}
-        activeOpacity={0.8}
-      >
-        <View style={styles.locationLeft}>
+      {/* Location Selector Bar - Non-nested structure */}
+      <View style={[styles.locationSelector, Elevation.shadowSm]}>
+        <TouchableOpacity
+          style={styles.locationLeftPressable}
+          onPress={onOpenSearch}
+          activeOpacity={0.7}
+          accessibilityRole="button"
+          accessibilityLabel="Select Location"
+        >
           <Ionicons
             name={activeLocation.isCurrentLocation ? 'navigate' : 'location-sharp'}
             size={18}
-            color={activeLocation.isCurrentLocation ? '#38BDF8' : '#F59E0B'}
+            color={activeLocation.isCurrentLocation ? Colors.green700 : Colors.orange600}
           />
           <Text style={styles.cityName} numberOfLines={1}>
             {activeLocation.name}
@@ -75,79 +86,79 @@ export const Header: React.FC<HeaderProps> = ({
           {activeLocation.country ? (
             <Text style={styles.countryBadge}>{activeLocation.country}</Text>
           ) : null}
-        </View>
+          <Ionicons name="chevron-down" size={15} color={Colors.textSecondary} style={{ marginLeft: 4 }} />
+        </TouchableOpacity>
 
-        <View style={styles.locationRight}>
-          <TouchableOpacity
-            style={styles.gpsSyncButton}
-            onPress={(e) => {
-              e.stopPropagation();
-              detectGpsLocation();
-            }}
-            disabled={loading}
-          >
-            <Ionicons
-              name="locate"
-              size={15}
-              color={activeLocation.isCurrentLocation ? '#38BDF8' : '#94A3B8'}
-            />
-          </TouchableOpacity>
-          <Ionicons name="chevron-down" size={16} color="#94A3B8" />
-        </View>
-      </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.gpsSyncButton}
+          onPress={detectGpsLocation}
+          disabled={loading}
+          activeOpacity={0.7}
+          accessibilityRole="button"
+          accessibilityLabel="Detect GPS Location"
+          accessibilityState={{ disabled: loading }}
+        >
+          <Ionicons
+            name="locate"
+            size={16}
+            color={activeLocation.isCurrentLocation ? Colors.green700 : Colors.textSecondary}
+          />
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    paddingHorizontal: 20,
-    paddingTop: 12,
-    paddingBottom: 8,
+    paddingHorizontal: Spacing.space8,
+    paddingTop: Spacing.space4,
+    paddingBottom: Spacing.space1,
   },
   topRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 12,
+    marginBottom: Spacing.space4,
+    minHeight: 44,
   },
   brandRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: Spacing.space1,
+    flexShrink: 1,
   },
   brandTitle: {
-    fontSize: 18,
-    fontWeight: '800',
+    ...Typography.textLgBold,
     letterSpacing: 2.5,
-    color: '#F8FAFC',
+    color: Colors.textPrimary,
   },
   proBadge: {
-    backgroundColor: 'rgba(56, 189, 248, 0.15)',
-    paddingHorizontal: 6,
+    backgroundColor: Colors.surface,
+    paddingHorizontal: 7,
     paddingVertical: 2,
     borderRadius: 6,
     borderWidth: 1,
-    borderColor: 'rgba(56, 189, 248, 0.3)',
+    borderColor: Colors.orange500,
   },
   proText: {
-    fontSize: 9,
-    fontWeight: '800',
-    color: '#38BDF8',
+    ...Typography.textXsBold,
+    color: Colors.orange700,
     letterSpacing: 1,
   },
   actionIconsRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: Spacing.space1,
+    flexShrink: 0,
   },
   iconButton: {
     width: 38,
     height: 38,
-    borderRadius: 12,
-    backgroundColor: 'rgba(30, 41, 59, 0.65)',
+    borderRadius: Shapes.radiusSm,
+    backgroundColor: Colors.surface,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.08)',
+    borderColor: Colors.border,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -155,34 +166,36 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: 'rgba(19, 27, 46, 0.7)',
-    borderRadius: 14,
-    paddingVertical: 10,
-    paddingHorizontal: 14,
+    backgroundColor: Colors.surface,
+    borderRadius: Shapes.radiusSm,
+    paddingVertical: Spacing.space2,
+    paddingHorizontal: Spacing.space5,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.06)',
+    borderColor: Colors.border,
   },
-  locationLeft: {
+
+  locationLeftPressable: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
     flex: 1,
   },
   cityName: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#F1F5F9',
+    ...Typography.textBaseBold,
+    color: Colors.textPrimary,
     maxWidth: '70%',
   },
   countryBadge: {
-    fontSize: 11,
-    fontWeight: '700',
-    color: '#94A3B8',
-    backgroundColor: 'rgba(255, 255, 255, 0.07)',
+    ...Typography.textXsBold,
+    color: Colors.textPrimary,
+    backgroundColor: Colors.surfaceElevated,
     paddingHorizontal: 6,
     paddingVertical: 2,
     borderRadius: 5,
+    borderWidth: 1,
+    borderColor: Colors.border,
   },
+
   locationRight: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -191,6 +204,6 @@ const styles = StyleSheet.create({
   gpsSyncButton: {
     padding: 4,
     borderRadius: 6,
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    backgroundColor: 'rgba(28, 28, 28, 0.05)',
   },
 });

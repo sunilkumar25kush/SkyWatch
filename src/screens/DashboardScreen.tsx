@@ -9,6 +9,7 @@ import {
   StatusBar,
   ActivityIndicator,
   TouchableOpacity,
+  Platform,
 } from 'react-native';
 import { Header } from '../components/common/Header';
 import { CurrentWeatherHero } from '../components/current/CurrentWeatherHero';
@@ -23,6 +24,11 @@ import { SearchLocationModal } from '../components/search/SearchLocationModal';
 import { WeatherRadarModal } from '../components/map/WeatherRadarModal';
 import { SettingsModal } from '../components/settings/SettingsModal';
 import { useWeather } from '../context/WeatherContext';
+import { Colors } from '../theme/colors';
+import { Typography } from '../theme/typography';
+import { Shapes } from '../theme/shapes';
+import { Spacing } from '../theme/spacing';
+import { Elevation } from '../theme/elevation';
 import { Feather, Ionicons } from '@expo/vector-icons';
 
 export const DashboardScreen: React.FC = () => {
@@ -41,7 +47,7 @@ export const DashboardScreen: React.FC = () => {
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <StatusBar barStyle="light-content" backgroundColor="#0B0F19" />
+      <StatusBar barStyle="dark-content" backgroundColor={Colors.bgCream} translucent />
 
       {/* Top Header */}
       <Header
@@ -53,7 +59,7 @@ export const DashboardScreen: React.FC = () => {
       {/* GPS Location Explanation Banner (PRD Section 8) */}
       {locationPermissionDenied && (
         <View style={styles.permissionBanner}>
-          <Ionicons name="location-outline" size={18} color="#F59E0B" />
+          <Ionicons name="location-outline" size={18} color={Colors.orange700} />
           <View style={styles.permissionTextBox}>
             <Text style={styles.permissionTitle}>GPS Permission Needed</Text>
             <Text style={styles.permissionSubtitle}>
@@ -72,14 +78,14 @@ export const DashboardScreen: React.FC = () => {
       {/* Warning/Error Banner */}
       {error && (
         <View style={styles.errorBanner}>
-          <Feather name="info" size={16} color="#38BDF8" />
+          <Feather name="info" size={16} color={Colors.orange700} />
           <Text style={styles.errorText}>{error}</Text>
         </View>
       )}
 
       {loading && !refreshing ? (
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#38BDF8" />
+          <ActivityIndicator size="large" color={Colors.orange600} />
           <Text style={styles.loadingText}>Synchronizing Atmospheric Telemetry...</Text>
         </View>
       ) : (
@@ -91,8 +97,8 @@ export const DashboardScreen: React.FC = () => {
             <RefreshControl
               refreshing={refreshing}
               onRefresh={refreshData}
-              tintColor="#38BDF8"
-              colors={['#38BDF8']}
+              tintColor={Colors.orange600}
+              colors={[Colors.orange600]}
             />
           }
         >
@@ -123,7 +129,7 @@ export const DashboardScreen: React.FC = () => {
           {/* Footer branding */}
           <View style={styles.footer}>
             <Text style={styles.footerText}>
-              SKYWATCH WEATHER INTELLIGENCE • OPENWEATHER PRO TELEMETRY
+              SkyWatch weather intelligence • OpenWeather pro telemetry
             </Text>
           </View>
         </ScrollView>
@@ -148,91 +154,96 @@ export const DashboardScreen: React.FC = () => {
   );
 };
 
+const ANDROID_STATUS_BAR_HEIGHT =
+  Platform.OS === 'android' ? (StatusBar.currentHeight || 36) : 0;
+
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#0B0F19',
+    backgroundColor: Colors.bgCream,
+    paddingTop: ANDROID_STATUS_BAR_HEIGHT,
   },
   scrollView: {
     flex: 1,
   },
   scrollContent: {
-    paddingBottom: 40,
+    paddingBottom: Spacing.space12,
   },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    gap: 16,
+    gap: Spacing.space6,
   },
   loadingText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#94A3B8',
+    ...Typography.textSmSemiBold,
+    color: Colors.textSecondary,
     letterSpacing: 0.5,
   },
   permissionBanner: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(245, 158, 11, 0.12)',
-    marginHorizontal: 20,
-    marginBottom: 8,
-    padding: 12,
-    borderRadius: 12,
+    backgroundColor: Colors.surfaceElevated,
+    marginHorizontal: Spacing.space8,
+    marginBottom: Spacing.space1,
+    padding: Spacing.space4,
+    borderRadius: Shapes.radiusSm,
     borderWidth: 1,
-    borderColor: 'rgba(245, 158, 11, 0.3)',
-    gap: 10,
+    borderColor: Colors.orange500,
+    gap: Spacing.space2,
+    ...Elevation.shadowSm,
   },
   permissionTextBox: {
     flex: 1,
   },
   permissionTitle: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: '#F59E0B',
+    ...Typography.textXsBold,
+    color: Colors.orange700,
   },
   permissionSubtitle: {
-    fontSize: 11,
-    color: '#CBD5E1',
+    ...Typography.textXs,
+    color: Colors.textSecondary,
     marginTop: 2,
   },
   enableGpsBtn: {
-    backgroundColor: '#F59E0B',
-    paddingHorizontal: 12,
+    backgroundColor: Colors.orange600,
+    paddingHorizontal: Spacing.space4,
     paddingVertical: 6,
-    borderRadius: 8,
+    borderRadius: Shapes.radiusSm,
+    ...Elevation.shadowMd,
   },
   enableGpsText: {
-    fontSize: 11,
-    fontWeight: '700',
-    color: '#0F172A',
+    ...Typography.textXsBold,
+    color: '#FFFFFF',
   },
   errorBanner: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
-    backgroundColor: 'rgba(56, 189, 248, 0.1)',
-    marginHorizontal: 20,
-    marginBottom: 8,
-    padding: 10,
-    borderRadius: 10,
+    gap: Spacing.space1,
+    backgroundColor: Colors.surfaceElevated,
+    marginHorizontal: Spacing.space8,
+    marginBottom: Spacing.space1,
+    padding: Spacing.space2,
+    borderRadius: Shapes.radiusSm,
     borderWidth: 1,
-    borderColor: 'rgba(56, 189, 248, 0.2)',
+    borderColor: Colors.border,
+    ...Elevation.shadowSm,
   },
+
   errorText: {
-    fontSize: 11,
-    color: '#94A3B8',
+    ...Typography.textXs,
+    color: Colors.textSecondary,
     flex: 1,
   },
   footer: {
     alignItems: 'center',
-    paddingTop: 16,
-    paddingBottom: 24,
+    paddingTop: Spacing.space6,
+    paddingBottom: Spacing.space9,
   },
   footerText: {
-    fontSize: 9,
-    fontWeight: '800',
+    ...Typography.textXsBold,
     letterSpacing: 1.5,
-    color: '#475569',
+    color: Colors.textMuted,
   },
 });
+

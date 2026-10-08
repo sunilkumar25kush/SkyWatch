@@ -3,7 +3,11 @@ import { View, Text, StyleSheet } from 'react-native';
 import { GlassCard } from '../common/GlassCard';
 import { useWeather } from '../../context/WeatherContext';
 import { getPollutantThresholds } from '../../utils/aqiUtils';
+import { Colors } from '../../theme/colors';
+import { Typography } from '../../theme/typography';
+import { Spacing } from '../../theme/spacing';
 import { Feather } from '@expo/vector-icons';
+
 
 export const PollutantGrid: React.FC = () => {
   const { airPollution } = useWeather();
@@ -14,8 +18,8 @@ export const PollutantGrid: React.FC = () => {
   return (
     <View style={styles.container}>
       <View style={styles.sectionHeader}>
-        <Feather name="layers" size={15} color="#38BDF8" />
-        <Text style={styles.sectionTitle}>PARTICULATE & GAS CONCENTRATIONS</Text>
+        <Feather name="layers" size={15} color={Colors.orange600} />
+        <Text style={styles.sectionTitle}>Particulate & gas concentrations</Text>
       </View>
 
       <View style={styles.grid}>
@@ -26,7 +30,7 @@ export const PollutantGrid: React.FC = () => {
               <View
                 style={[
                   styles.statusTag,
-                  { backgroundColor: `${p.statusColor}22`, borderColor: `${p.statusColor}55` },
+                  { backgroundColor: `${p.statusColor}22`, borderColor: `${p.statusColor}66` },
                 ]}
               >
                 <Text style={[styles.statusTagText, { color: p.statusColor }]}>
@@ -64,30 +68,30 @@ export const PollutantGrid: React.FC = () => {
 
 const styles = StyleSheet.create({
   container: {
-    marginHorizontal: 20,
-    marginBottom: 20,
+    marginHorizontal: Spacing.space8,
+    marginBottom: Spacing.space8,
   },
   sectionHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 7,
-    marginBottom: 10,
+    marginBottom: Spacing.space2,
   },
   sectionTitle: {
-    fontSize: 12,
-    fontWeight: '800',
+    ...Typography.textXsBold,
     letterSpacing: 1.5,
-    color: '#94A3B8',
+    color: Colors.textSecondary,
   },
   grid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 10,
+    gap: Spacing.space2,
   },
   tile: {
     flex: 1,
     minWidth: '47%',
   },
+
   tileTop: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -95,9 +99,8 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   pollutantCode: {
-    fontSize: 16,
-    fontWeight: '800',
-    color: '#F8FAFC',
+    ...Typography.textBaseBold,
+    color: Colors.textPrimary,
   },
   statusTag: {
     paddingHorizontal: 6,
@@ -106,13 +109,11 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   statusTagText: {
-    fontSize: 10,
-    fontWeight: '700',
+    ...Typography.textXsBold,
   },
   pollutantName: {
-    fontSize: 11,
-    color: '#64748B',
-    fontWeight: '600',
+    ...Typography.textXs,
+    color: Colors.textSecondary,
     marginBottom: 8,
   },
   valueRow: {
@@ -122,18 +123,16 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   valueNumber: {
-    fontSize: 20,
-    fontWeight: '800',
-    color: '#FFFFFF',
+    ...Typography.textXlBold,
+    color: Colors.textPrimary,
   },
   valueUnit: {
-    fontSize: 10,
-    fontWeight: '600',
-    color: '#94A3B8',
+    ...Typography.textXs,
+    color: Colors.textSecondary,
   },
   thresholdTrack: {
     height: 4,
-    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    backgroundColor: 'rgba(28, 28, 28, 0.08)',
     borderRadius: 2,
     overflow: 'hidden',
   },
@@ -142,3 +141,4 @@ const styles = StyleSheet.create({
     borderRadius: 2,
   },
 });
+

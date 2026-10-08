@@ -1,6 +1,11 @@
 import React from 'react';
 import { View, StyleSheet, ViewStyle, StyleProp } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { Colors } from '../../theme/colors';
+import { Shapes } from '../../theme/shapes';
+import { Spacing } from '../../theme/spacing';
+
+import { Elevation } from '../../theme/elevation';
 
 interface GlassCardProps {
   children: React.ReactNode;
@@ -18,19 +23,21 @@ export const GlassCard: React.FC<GlassCardProps> = ({
   const getGradientColors = (): [string, string] => {
     switch (variant) {
       case 'elevated':
-        return ['rgba(30, 41, 59, 0.85)', 'rgba(15, 23, 42, 0.9)'];
+        return ['#ECEAC9', '#E5E2BE'];
       case 'accent':
-        return ['rgba(49, 46, 129, 0.5)', 'rgba(17, 24, 39, 0.85)'];
+        return ['#EDEBCB', '#E8DFB5'];
       case 'subtle':
-        return ['rgba(30, 41, 59, 0.4)', 'rgba(15, 23, 42, 0.6)'];
+        return ['rgba(236, 234, 201, 0.75)', 'rgba(236, 234, 201, 0.95)'];
       case 'default':
       default:
-        return ['rgba(26, 36, 56, 0.75)', 'rgba(13, 20, 36, 0.85)'];
+        return ['#ECEAC9', '#E7E4BE'];
     }
   };
 
+  const shadowStyle = variant === 'accent' ? Elevation.shadowMd : Elevation.shadowSm;
+
   return (
-    <View style={[styles.outerContainer, style]}>
+    <View style={[styles.outerContainer, shadowStyle, style]}>
       <LinearGradient
         colors={getGradientColors()}
         start={{ x: 0, y: 0 }}
@@ -45,21 +52,16 @@ export const GlassCard: React.FC<GlassCardProps> = ({
 
 const styles = StyleSheet.create({
   outerContainer: {
-    borderRadius: 20,
+    borderRadius: Shapes.radiusSm,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.08)',
-    overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.35,
-    shadowRadius: 16,
-    elevation: 8,
+    borderColor: Colors.border,
   },
   gradientInner: {
-    padding: 18,
-    borderRadius: 20,
+    padding: Spacing.space7,
+    borderRadius: Shapes.radiusSm,
   },
   noPadding: {
     padding: 0,
   },
 });
+

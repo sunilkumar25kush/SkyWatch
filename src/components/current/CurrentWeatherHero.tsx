@@ -5,7 +5,14 @@ import { WeatherIcon } from '../../utils/weatherIcons';
 import { formatTemp } from '../../utils/formatters';
 import { useWeather } from '../../context/WeatherContext';
 import { useSettings } from '../../context/SettingsContext';
+import { Colors } from '../../theme/colors';
+import { Typography, FontWeights } from '../../theme/typography';
+import { Shapes } from '../../theme/shapes';
+import { Spacing } from '../../theme/spacing';
 import { MaterialCommunityIcons, Feather } from '@expo/vector-icons';
+
+import { HoppyBob } from '../common/HoppyBob';
+import { Elevation } from '../../theme/elevation';
 
 export const CurrentWeatherHero: React.FC = () => {
   const { currentWeather } = useWeather();
@@ -35,12 +42,12 @@ export const CurrentWeatherHero: React.FC = () => {
         <View style={styles.conditionPill}>
           <View style={styles.pulseDot} />
           <Text style={styles.conditionPillText}>
-            {weather.main.toUpperCase()}
+            {weather.main}
           </Text>
         </View>
 
         <View style={styles.coordPill}>
-          <Feather name="crosshair" size={11} color="#64748B" />
+          <Feather name="crosshair" size={11} color={Colors.textSecondary} />
           <Text style={styles.coordText}>
             {currentWeather.coord.lat.toFixed(2)}°, {currentWeather.coord.lon.toFixed(2)}°
           </Text>
@@ -61,13 +68,15 @@ export const CurrentWeatherHero: React.FC = () => {
         </View>
 
         <View style={styles.tempRight}>
-          <View style={styles.iconCircle}>
-            <WeatherIcon
-              iconCode={weather.icon}
-              condition={weather.main}
-              size={64}
-            />
-          </View>
+          <HoppyBob amplitude={6}>
+            <View style={[styles.iconCircle, Elevation.shadowSm]}>
+              <WeatherIcon
+                iconCode={weather.icon}
+                condition={weather.main}
+                size={64}
+              />
+            </View>
+          </HoppyBob>
         </View>
       </View>
 
@@ -77,7 +86,7 @@ export const CurrentWeatherHero: React.FC = () => {
           <MaterialCommunityIcons
             name={hasSnow ? 'weather-snowy-heavy' : 'weather-pouring'}
             size={18}
-            color="#38BDF8"
+            color={Colors.orange700}
           />
           <Text style={styles.precipitationText}>
             {hasRain
@@ -90,7 +99,7 @@ export const CurrentWeatherHero: React.FC = () => {
       {/* Bottom Range Bar: High & Low */}
       <View style={styles.rangeRow}>
         <View style={styles.rangeItem}>
-          <MaterialCommunityIcons name="arrow-up" size={16} color="#F43F5E" />
+          <MaterialCommunityIcons name="arrow-up" size={16} color={Colors.orange600} />
           <Text style={styles.rangeLabel}>High</Text>
           <Text style={styles.rangeValue}>{tempMax}</Text>
         </View>
@@ -98,7 +107,7 @@ export const CurrentWeatherHero: React.FC = () => {
         <View style={styles.rangeDivider} />
 
         <View style={styles.rangeItem}>
-          <MaterialCommunityIcons name="arrow-down" size={16} color="#38BDF8" />
+          <MaterialCommunityIcons name="arrow-down" size={16} color={Colors.green600} />
           <Text style={styles.rangeLabel}>Low</Text>
           <Text style={styles.rangeValue}>{tempMin}</Text>
         </View>
@@ -106,7 +115,7 @@ export const CurrentWeatherHero: React.FC = () => {
         <View style={styles.rangeDivider} />
 
         <View style={styles.rangeItem}>
-          <MaterialCommunityIcons name="water-percent" size={16} color="#A78BFA" />
+          <MaterialCommunityIcons name="water-percent" size={16} color={Colors.olive600} />
           <Text style={styles.rangeLabel}>Humidity</Text>
           <Text style={styles.rangeValue}>{main.humidity}%</Text>
         </View>
@@ -117,73 +126,71 @@ export const CurrentWeatherHero: React.FC = () => {
 
 const styles = StyleSheet.create({
   card: {
-    marginHorizontal: 20,
-    marginTop: 8,
-    marginBottom: 16,
+    marginHorizontal: Spacing.space8,
+    marginTop: Spacing.space1,
+    marginBottom: Spacing.space6,
   },
   topStatusRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 14,
+    marginBottom: Spacing.space5,
   },
   conditionPill: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    backgroundColor: 'rgba(56, 189, 248, 0.12)',
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 20,
+    backgroundColor: Colors.surfaceElevated,
+    paddingHorizontal: Spacing.space2,
+    paddingVertical: Spacing.baseUnit,
+    borderRadius: Shapes.radiusFull,
     borderWidth: 1,
-    borderColor: 'rgba(56, 189, 248, 0.25)',
+    borderColor: Colors.border,
   },
   pulseDot: {
     width: 6,
     height: 6,
     borderRadius: 3,
-    backgroundColor: '#38BDF8',
+    backgroundColor: Colors.orange600,
   },
   conditionPillText: {
-    fontSize: 11,
-    fontWeight: '700',
-    color: '#38BDF8',
+    ...Typography.textXsBold,
+    color: Colors.textPrimary,
     letterSpacing: 1,
   },
   coordPill: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    backgroundColor: 'rgba(255, 255, 255, 0.04)',
-    paddingHorizontal: 8,
+    backgroundColor: 'rgba(28, 28, 28, 0.04)',
+    paddingHorizontal: Spacing.space1,
     paddingVertical: 3,
     borderRadius: 6,
+    borderWidth: 1,
+    borderColor: Colors.border,
   },
   coordText: {
-    fontSize: 10,
-    color: '#94A3B8',
-    fontWeight: '600',
+    ...Typography.textXs,
+    color: Colors.textSecondary,
+    fontWeight: FontWeights.semiBold,
   },
   heroContent: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 16,
+    marginBottom: Spacing.space6,
   },
   tempLeft: {
     flex: 1,
   },
   tempNumber: {
-    fontSize: 56,
-    fontWeight: '800',
-    color: '#FFFFFF',
+    ...Typography.text3xlExtraBold,
+    color: Colors.textPrimary,
     letterSpacing: -1.5,
-    lineHeight: 64,
   },
   weatherDescription: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#94A3B8',
+    ...Typography.textBaseSemiBold,
+    color: Colors.textSecondary,
     marginTop: 2,
     marginBottom: 6,
   },
@@ -193,14 +200,12 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   feelsLikeLabel: {
-    fontSize: 13,
-    color: '#64748B',
-    fontWeight: '500',
+    ...Typography.textSmMedium,
+    color: Colors.textSecondary,
   },
   feelsLikeValue: {
-    fontSize: 13,
-    color: '#CBD5E1',
-    fontWeight: '700',
+    ...Typography.textSmBold,
+    color: Colors.textPrimary,
   },
   tempRight: {
     justifyContent: 'center',
@@ -209,57 +214,55 @@ const styles = StyleSheet.create({
   iconCircle: {
     width: 90,
     height: 90,
-    borderRadius: 45,
-    backgroundColor: 'rgba(30, 41, 59, 0.5)',
+    borderRadius: Shapes.radiusFull,
+    backgroundColor: Colors.surfaceElevated,
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.08)',
+    borderColor: Colors.border,
   },
   precipitationAlert: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
-    backgroundColor: 'rgba(2, 132, 199, 0.15)',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 10,
-    marginBottom: 14,
+    gap: Spacing.space1,
+    backgroundColor: Colors.surfaceElevated,
+    paddingHorizontal: Spacing.space4,
+    paddingVertical: Spacing.space1,
+    borderRadius: Shapes.radiusSm,
+    marginBottom: Spacing.space5,
     borderWidth: 1,
-    borderColor: 'rgba(2, 132, 199, 0.3)',
+    borderColor: Colors.orange500,
   },
   precipitationText: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#7DD3FC',
+    ...Typography.textXsMedium,
+    color: Colors.orange700,
     flex: 1,
   },
   rangeRow: {
     flexDirection: 'row',
     justifyContent: 'space-around',
     alignItems: 'center',
-    paddingTop: 14,
+    paddingTop: Spacing.space5,
     borderTopWidth: 1,
-    borderTopColor: 'rgba(255, 255, 255, 0.07)',
+    borderTopColor: Colors.border,
   },
+
   rangeItem: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 5,
   },
   rangeLabel: {
-    fontSize: 12,
-    color: '#94A3B8',
-    fontWeight: '500',
+    ...Typography.textXsMedium,
+    color: Colors.textSecondary,
   },
   rangeValue: {
-    fontSize: 13,
-    fontWeight: '700',
-    color: '#F8FAFC',
+    ...Typography.textSmBold,
+    color: Colors.textPrimary,
   },
   rangeDivider: {
     width: 1,
     height: 18,
-    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    backgroundColor: Colors.border,
   },
 });

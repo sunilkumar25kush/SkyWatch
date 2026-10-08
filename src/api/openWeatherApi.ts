@@ -15,13 +15,13 @@ import {
 
 const BASE_URL = 'https://api.openweathermap.org';
 
-// Optional public demo key for sandbox evaluation if user hasn't supplied one
-export const DEFAULT_DEMO_KEY = '';
+// Read OpenWeather API key from Expo environment (.env)
+export const DEFAULT_ENV_KEY = process.env.EXPO_PUBLIC_OPENWEATHER_API_KEY?.trim() || '';
 
 export class OpenWeatherService {
   private apiKey: string;
 
-  constructor(apiKey: string = '') {
+  constructor(apiKey: string = DEFAULT_ENV_KEY) {
     this.apiKey = apiKey.trim();
   }
 
@@ -181,4 +181,4 @@ export class OpenWeatherService {
   }
 }
 
-export const weatherApi = new OpenWeatherService();
+export const weatherApi = new OpenWeatherService(DEFAULT_ENV_KEY);

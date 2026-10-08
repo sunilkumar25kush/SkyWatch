@@ -6,17 +6,62 @@ export const formatTemp = (temp: number | undefined | null, unit: UnitSystem = '
   return `${rounded}°${unit === 'metric' ? 'C' : 'F'}`;
 };
 
-export const formatWindSpeed = (speed: number | undefined, unit: UnitSystem = 'metric'): string => {
-  if (speed === undefined || speed === null) return '--';
+export interface FormattedWind {
+  primary: string;
+  secondary: string;
+  speedKmh: string;
+  speedMs: string;
+  speedMph: string;
+}
+
+export const getWindSpeedDisplay = (
+  speed: number | undefined | null,
+  unit: UnitSystem = 'metric'
+): FormattedWind => {
+  if (speed === undefined || speed === null) {
+    return {
+      primary: '--',
+      secondary: '--',
+      speedKmh: '--',
+      speedMs: '--',
+      speedMph: '--',
+    };
+  }
+
+  // OpenWeather API units behavior:
+  // When units='metric', speed is in meters/sec (m/s).
+  // When units='imperial', speed is in miles/hour (mph).
+  const ms = unit === 'metric' ? speed : speed / 2.23694;
+  const kmh = ms * 3.6;
+  const mph = ms * 2.23694;
+
+  const kmhStr = `${kmh.toFixed(1)} km/h`;
+  const msStr = `${ms.toFixed(1)} m/s`;
+  const mphStr = `${mph.toFixed(1)} mph`;
+
   if (unit === 'metric') {
-    // OpenWeather returns m/s for metric, let's display km/h for intuitive readability
-    const kmh = Math.round(speed * 3.6);
-    return `${kmh} km/h`;
+    return {
+      primary: kmhStr,
+      secondary: msStr,
+      speedKmh: kmhStr,
+      speedMs: msStr,
+      speedMph: mphStr,
+    };
   } else {
-    // Imperial returns mph
-    return `${Math.round(speed)} mph`;
+    return {
+      primary: mphStr,
+      secondary: msStr,
+      speedKmh: kmhStr,
+      speedMs: msStr,
+      speedMph: mphStr,
+    };
   }
 };
+
+export const formatWindSpeed = (speed: number | undefined | null, unit: UnitSystem = 'metric'): string => {
+  return getWindSpeedDisplay(speed, unit).primary;
+};
+
 
 export const getWindDirectionCardinal = (deg: number | undefined): string => {
   if (deg === undefined) return '--';

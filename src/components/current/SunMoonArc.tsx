@@ -4,6 +4,9 @@ import Svg, { Path, Circle, Defs, LinearGradient, Stop } from 'react-native-svg'
 import { GlassCard } from '../common/GlassCard';
 import { useWeather } from '../../context/WeatherContext';
 import { formatTime, getSunlightProgress } from '../../utils/formatters';
+import { Colors } from '../../theme/colors';
+import { Typography } from '../../theme/typography';
+import { Spacing } from '../../theme/spacing';
 import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
 
 export const SunMoonArc: React.FC = () => {
@@ -20,11 +23,8 @@ export const SunMoonArc: React.FC = () => {
   const sunriseFormatted = formatTime(sys.sunrise, timezone);
   const sunsetFormatted = formatTime(sys.sunset, timezone);
 
-  // SVG Arc Dimensions
   const width = 300;
   const height = 90;
-  // Semi-ellipse arc from (20, 80) to (280, 80) with control curve peaking at y = 15
-  // Point along arc using parametric angle theta: 0 (sunrise) to PI (sunset)
   const theta = Math.PI * (1 - progress);
   const cx = 150;
   const rx = 130;
@@ -36,8 +36,8 @@ export const SunMoonArc: React.FC = () => {
     <GlassCard style={styles.card}>
       <View style={styles.headerRow}>
         <View style={styles.headerLeft}>
-          <Feather name="sun" size={16} color="#FBBF24" />
-          <Text style={styles.headerTitle}>CELESTIAL CYCLE</Text>
+          <Feather name="sun" size={16} color={Colors.orange600} />
+          <Text style={styles.headerTitle}>Celestial cycle</Text>
         </View>
         <Text style={styles.daylightText}>Daylight: {daylightHours}</Text>
       </View>
@@ -46,16 +46,16 @@ export const SunMoonArc: React.FC = () => {
         <Svg width="100%" height={height} viewBox={`0 0 ${width} ${height}`}>
           <Defs>
             <LinearGradient id="arcGrad" x1="0" y1="0" x2="1" y2="0">
-              <Stop offset="0" stopColor="#F59E0B" stopOpacity="0.3" />
-              <Stop offset="0.5" stopColor="#FBBF24" stopOpacity="0.9" />
-              <Stop offset="1" stopColor="#F97316" stopOpacity="0.3" />
+              <Stop offset="0" stopColor={Colors.orange400} stopOpacity="0.5" />
+              <Stop offset="0.5" stopColor={Colors.orange600} stopOpacity="0.95" />
+              <Stop offset="1" stopColor={Colors.orange700} stopOpacity="0.5" />
             </LinearGradient>
           </Defs>
 
           {/* Background Horizon Line */}
           <Path
             d="M 10 80 L 290 80"
-            stroke="rgba(255, 255, 255, 0.1)"
+            stroke={Colors.border}
             strokeWidth="1.5"
             strokeDasharray="4, 4"
           />
@@ -76,14 +76,14 @@ export const SunMoonArc: React.FC = () => {
                 cx={sunX}
                 cy={sunY}
                 r="10"
-                fill="rgba(251, 191, 36, 0.25)"
+                fill="rgba(240, 136, 44, 0.25)"
               />
               {/* Sun Core */}
               <Circle
                 cx={sunX}
                 cy={sunY}
                 r="6"
-                fill="#FBBF24"
+                fill={Colors.orange500}
                 stroke="#FFFFFF"
                 strokeWidth="1.5"
               />
@@ -94,7 +94,7 @@ export const SunMoonArc: React.FC = () => {
               cx="150"
               cy="80"
               r="5"
-              fill="#818CF8"
+              fill={Colors.olive600}
               stroke="#FFFFFF"
               strokeWidth="1"
             />
@@ -106,7 +106,7 @@ export const SunMoonArc: React.FC = () => {
       <View style={styles.timeLabelsRow}>
         <View style={styles.timeCol}>
           <View style={styles.timeIconRow}>
-            <MaterialCommunityIcons name="weather-sunset-up" size={16} color="#FBBF24" />
+            <MaterialCommunityIcons name="weather-sunset-up" size={16} color={Colors.orange600} />
             <Text style={styles.timeType}>Sunrise</Text>
           </View>
           <Text style={styles.timeValue}>{sunriseFormatted}</Text>
@@ -124,7 +124,7 @@ export const SunMoonArc: React.FC = () => {
         <View style={[styles.timeCol, styles.alignRight]}>
           <View style={[styles.timeIconRow, styles.justifyRight]}>
             <Text style={styles.timeType}>Sunset</Text>
-            <MaterialCommunityIcons name="weather-sunset-down" size={16} color="#F97316" />
+            <MaterialCommunityIcons name="weather-sunset-down" size={16} color={Colors.orange700} />
           </View>
           <Text style={styles.timeValue}>{sunsetFormatted}</Text>
         </View>
@@ -135,30 +135,29 @@ export const SunMoonArc: React.FC = () => {
 
 const styles = StyleSheet.create({
   card: {
-    marginHorizontal: 20,
-    marginBottom: 20,
+    marginHorizontal: Spacing.space8,
+    marginBottom: Spacing.space8,
   },
   headerRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 10,
+    marginBottom: Spacing.space2,
   },
+
   headerLeft: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
   },
   headerTitle: {
-    fontSize: 12,
-    fontWeight: '800',
+    ...Typography.textXsBold,
     letterSpacing: 1.5,
-    color: '#94A3B8',
+    color: Colors.textSecondary,
   },
   daylightText: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#FBBF24',
+    ...Typography.textXsMedium,
+    color: Colors.orange700,
   },
   svgContainer: {
     alignItems: 'center',
@@ -187,27 +186,24 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   timeType: {
-    fontSize: 11,
-    color: '#94A3B8',
-    fontWeight: '600',
+    ...Typography.textXs,
+    color: Colors.textSecondary,
   },
   timeValue: {
-    fontSize: 14,
-    fontWeight: '700',
-    color: '#F8FAFC',
+    ...Typography.textSmBold,
+    color: Colors.textPrimary,
   },
   centerStatus: {
     alignItems: 'center',
   },
   statusLabel: {
-    fontSize: 11,
-    color: '#64748B',
-    fontWeight: '600',
+    ...Typography.textXs,
+    color: Colors.textSecondary,
   },
   progressPercent: {
-    fontSize: 11,
-    fontWeight: '700',
-    color: '#38BDF8',
+    ...Typography.textXsBold,
+    color: Colors.green700,
     marginTop: 2,
   },
 });
+

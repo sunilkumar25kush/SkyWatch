@@ -3,12 +3,16 @@ import { View, Text, StyleSheet } from 'react-native';
 import { GlassCard } from '../common/GlassCard';
 import { useWeather } from '../../context/WeatherContext';
 import { useSettings } from '../../context/SettingsContext';
+import { Colors } from '../../theme/colors';
+import { Typography } from '../../theme/typography';
+import { Spacing } from '../../theme/spacing';
 import {
-  formatWindSpeed,
+  getWindSpeedDisplay,
   getWindDirectionCardinal,
   formatPressure,
   formatDistance,
 } from '../../utils/formatters';
+
 import { MaterialCommunityIcons, Feather } from '@expo/vector-icons';
 
 export const AtmosphericGrid: React.FC = () => {
@@ -19,7 +23,6 @@ export const AtmosphericGrid: React.FC = () => {
 
   const { main, wind, clouds, visibility } = currentWeather;
 
-  // Approximate dew point in Celsius: T - ((100 - RH) / 5)
   const dewPointCelsius = Math.round(main.temp - (100 - main.humidity) / 5);
   const dewPointDisplay =
     unitSystem === 'metric'
@@ -27,38 +30,39 @@ export const AtmosphericGrid: React.FC = () => {
       : `${Math.round((dewPointCelsius * 9) / 5 + 32)}°F`;
 
   const windCardinal = getWindDirectionCardinal(wind.deg);
-  const windFormatted = formatWindSpeed(wind.speed, unitSystem);
+  const windInfo = getWindSpeedDisplay(wind.speed, unitSystem);
+  const gustInfo = wind.gust ? getWindSpeedDisplay(wind.gust, unitSystem) : null;
   const pressureFormatted = formatPressure(main.pressure, unitSystem);
   const visibilityFormatted = formatDistance(visibility, unitSystem);
 
   const getHumidityStatus = (humidity: number): string => {
-    if (humidity < 30) return 'Dry';
-    if (humidity <= 60) return 'Comfortable';
-    if (humidity <= 80) return 'Humid';
+    if (humidity < 30) return 'Dry Atmosphere';
+    if (humidity <= 60) return 'Optimal Comfort';
+    if (humidity <= 80) return 'Elevated Humidity';
     return 'Very Humid';
   };
 
   const getPressureStatus = (pressure: number): string => {
     if (pressure > 1018) return 'High Pressure (Clear)';
     if (pressure < 1008) return 'Low Pressure (Stormy)';
-    return 'Normal Atmospheric';
+    return 'Balanced Atmospheric';
   };
 
   return (
     <View style={styles.container}>
       <View style={styles.sectionHeader}>
-        <Feather name="activity" size={15} color="#38BDF8" />
-        <Text style={styles.sectionTitle}>ATMOSPHERIC TELEMETRY</Text>
+        <Feather name="activity" size={15} color={Colors.orange600} />
+        <Text style={styles.sectionTitle}>Atmospheric telemetry</Text>
       </View>
 
       <View style={styles.grid}>
         {/* Wind Vector Tile */}
         <GlassCard style={styles.tile}>
           <View style={styles.tileHeader}>
-            <MaterialCommunityIcons name="weather-windy" size={18} color="#38BDF8" />
-            <Text style={styles.tileTitle}>WIND</Text>
+            <MaterialCommunityIcons name="weather-windy" size={18} color={Colors.orange600} />
+            <Text style={styles.tileTitle}>Wind</Text>
           </View>
-          <Text style={styles.tileValue}>{windFormatted}</Text>
+          <Text style={styles.tileValue}>{windInfo.primary}</Text>
           <View style={styles.windSubRow}>
             <View
               style={[
@@ -66,24 +70,25 @@ export const AtmosphericGrid: React.FC = () => {
                 { transform: [{ rotate: `${wind.deg}deg` }] },
               ]}
             >
-              <MaterialCommunityIcons name="navigation" size={14} color="#38BDF8" />
+              <MaterialCommunityIcons name="navigation" size={14} color={Colors.orange600} />
             </View>
             <Text style={styles.tileSubtitle}>
-              {windCardinal} ({wind.deg}°)
+              {windCardinal} ({wind.deg}°) • {windInfo.secondary}
             </Text>
           </View>
-          {wind.gust ? (
+          {gustInfo ? (
             <Text style={styles.tileNotice}>
-              Gusts up to {formatWindSpeed(wind.gust, unitSystem)}
+              Gusts: {gustInfo.primary} ({gustInfo.secondary})
             </Text>
           ) : null}
         </GlassCard>
 
+
         {/* Barometric Pressure Tile */}
         <GlassCard style={styles.tile}>
           <View style={styles.tileHeader}>
-            <MaterialCommunityIcons name="gauge" size={18} color="#818CF8" />
-            <Text style={styles.tileTitle}>PRESSURE</Text>
+            <MaterialCommunityIcons name="gauge" size={18} color={Colors.olive600} />
+            <Text style={styles.tileTitle}>Pressure</Text>
           </View>
           <Text style={styles.tileValue}>{pressureFormatted}</Text>
           <Text style={styles.tileSubtitle}>{getPressureStatus(main.pressure)}</Text>
@@ -95,8 +100,8 @@ export const AtmosphericGrid: React.FC = () => {
         {/* Humidity & Dew Point Tile */}
         <GlassCard style={styles.tile}>
           <View style={styles.tileHeader}>
-            <MaterialCommunityIcons name="water-percent" size={18} color="#06B6D4" />
-            <Text style={styles.tileTitle}>HUMIDITY</Text>
+            <MaterialCommunityIcons name="water-percent" size={18} color={Colors.green600} />
+            <Text style={styles.tileTitle}>Humidity</Text>
           </View>
           <Text style={styles.tileValue}>{main.humidity}%</Text>
           <Text style={styles.tileSubtitle}>{getHumidityStatus(main.humidity)}</Text>
@@ -106,14 +111,14 @@ export const AtmosphericGrid: React.FC = () => {
         {/* Visibility Tile */}
         <GlassCard style={styles.tile}>
           <View style={styles.tileHeader}>
-            <Feather name="eye" size={16} color="#10B981" />
-            <Text style={styles.tileTitle}>VISIBILITY</Text>
+            <Feather name="eye" size={16} color={Colors.green700} />
+            <Text style={styles.tileTitle}>Visibility</Text>
           </View>
           <Text style={styles.tileValue}>{visibilityFormatted}</Text>
           <Text style={styles.tileSubtitle}>
-            {visibility >= 9000 ? 'Clear Horizons' : 'Reduced Visibility'}
+            {visibility >= 9000 ? 'Clear horizons' : 'Reduced visibility'}
           </Text>
-          <Text style={styles.tileNotice}>Cloud Cover: {clouds.all}%</Text>
+          <Text style={styles.tileNotice}>Cloud cover: {clouds.all}%</Text>
         </GlassCard>
       </View>
     </View>
@@ -122,25 +127,24 @@ export const AtmosphericGrid: React.FC = () => {
 
 const styles = StyleSheet.create({
   container: {
-    marginHorizontal: 20,
-    marginBottom: 20,
+    marginHorizontal: Spacing.space8,
+    marginBottom: Spacing.space8,
   },
   sectionHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 7,
-    marginBottom: 10,
+    gap: Spacing.space1,
+    marginBottom: Spacing.space2,
   },
   sectionTitle: {
-    fontSize: 12,
-    fontWeight: '800',
+    ...Typography.textXsBold,
     letterSpacing: 1.5,
-    color: '#94A3B8',
+    color: Colors.textSecondary,
   },
   grid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 12,
+    gap: Spacing.space4,
   },
   tile: {
     flex: 1,
@@ -150,18 +154,17 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    marginBottom: 8,
+    marginBottom: Spacing.space1,
   },
+
   tileTitle: {
-    fontSize: 11,
-    fontWeight: '700',
-    color: '#94A3B8',
+    ...Typography.textXsBold,
+    color: Colors.textSecondary,
     letterSpacing: 1,
   },
   tileValue: {
-    fontSize: 22,
-    fontWeight: '800',
-    color: '#F8FAFC',
+    ...Typography.textXlBold,
+    color: Colors.textPrimary,
     marginBottom: 4,
   },
   windSubRow: {
@@ -177,14 +180,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   tileSubtitle: {
-    fontSize: 12,
-    color: '#CBD5E1',
-    fontWeight: '600',
+    ...Typography.textXsMedium,
+    color: Colors.textSecondary,
   },
   tileNotice: {
-    fontSize: 10,
-    color: '#64748B',
+    ...Typography.textXs,
+    color: Colors.textMuted,
     marginTop: 4,
-    fontWeight: '500',
   },
 });
+
